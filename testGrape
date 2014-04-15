@@ -1,4 +1,6 @@
 //test case sin wave with frequency 1000Hz
+//http://www.cs.unc.edu/~ziyouw/folder/sinTest.wav
+//go to the link above to download the test .wav file
 global proc testGrape(string $filename, int $bass, int $mid, int $treble)
 {
     grapesScene($filename,$bass,$mid,$treble);
