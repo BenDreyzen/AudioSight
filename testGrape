@@ -1,4 +1,4 @@
-//test case sine wave with frequency 1000Hz
+//test case sin wave with frequency 1000Hz
 global proc testGrape(string $filename, int $bass, int $mid, int $treble)
 {
     grapesScene($filename,$bass,$mid,$treble);
