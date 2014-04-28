@@ -1,38 +1,28 @@
 //test case sin wave with frequency 1000Hz
 //http://www.cs.unc.edu/~ziyouw/folder/sinTest.wav
 //go to the link above to download the test .wav file
-global proc testGrape(string $filename, int $bass, int $mid, int $treble, float $left[], float $right[])
+global proc testGrape(string $path, int $bands, int $shape, float $left[], float $right[], int $interpolation, int $color)
 {
-    grapesScene($filename,$bass,$mid,$treble, $left[],$right[]);
-    string $cmd1;
-    string $cmd2;
-    string $cmd3;
+    grapes($path,$bands,$shape,$left,$right,$interpolation,$color);
+    string $cmd;
+    float $radius;
     float $temp;
     int $test=1;
-    float $r1=`getAttr - time 0 polySphere1.radius`;
-    float $r2=`getAttr - time 0 polySphere2.radius`;
-    float $r3=`getAttr - time 0 polySphere3.radius`;
-    for($i=1; $i<15; $i++){
-        $cmd1="getAttr - time "+$i+" polySphere1.radius";
-        $cmd2="getAttr - time "+$i+" polySphere2.radius";
-        $cmd3="getAttr - time "+$i+" polySphere3.radius";
-        $temp=`eval $cmd1`;
-        if($temp!=$r1){
-            print ("Radius of polySphere1 should keep unchanged.\n");
-            $test=0;
-            break;
-        }
-        $temp=`eval $cmd2`;
-        if($temp!=$r2){
-            print ("Radius of polySphere2 should keep unchanged.\n");
-            $test=0;
-            break;
-        }
-        $temp=`eval $cmd3`;
-        if($temp!=$r3){
-            print ("Radius of polySphere3 should keep unchanged.\n");
-            $test=0;
-            break;
+    for($i=1; $i<=$bands;$i++ ){
+        if($shape==1){
+            $cmd="getAttr - time 0 polySphere"+$i+".radius";
+            $radius=`eval $cmd`;
+            $radius=floor($radius*1000+0.5);
+            for ($j=1;$j<=20;$j++){
+                $cmd="getAttr - time "+$j+" polySphere"+$i+".radius";
+                $temp=`eval $cmd`;
+                $temp=floor($temp*1000+0.5);
+                if($temp!=$radius){
+                    print ("ERROR: Radius of polySphere"+$i+" should keep unchanged.\n");
+                    $test=0;
+                    break;
+                }
+            }
         }
     }
     if($test==1){
