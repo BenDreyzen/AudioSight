@@ -1,4 +1,4 @@
-//UItest
+//UItest written by Ziyou "Will" Wu
 //global proc UItest(string $path, int $bass, int $mid, int $treble, int $color, int $size)
 global proc UItest(string $path, int $bass, int $mid, int $treble)
 {
