@@ -47,7 +47,7 @@ proc float[] HSVtoRGB(float $hsv[]) {
 	}
 	return $rgb;
 }
-//-------------test code starts from here----------
+//-------------test code starts from here written by Ziyou "Will" Wu----------
 proc testColorCovert()
 {
 	print ("Test case 1: RGB to HSV: ");
