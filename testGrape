@@ -1,3 +1,4 @@
+//written by Ziyou "Will" Wu
 //test case sin wave with frequency 1000Hz
 //http://www.cs.unc.edu/~ziyouw/folder/sinTest.wav
 //go to the link above to download the test .wav file
@@ -5,8 +6,13 @@ global proc testGrape(string $path, int $bands, int $shape, float $left[], float
 {
     grapes($path,$bands,$shape,$left,$right,$interpolation,$color);
     string $cmd;
+    string $cmd2;
+    string $cmd3;
     float $radius;
     float $temp;
+    float $width;
+    float $height;
+    float $depth;
     int $test=1;
     for($i=1; $i<=$bands;$i++ ){
         if($shape==1){
@@ -19,6 +25,42 @@ global proc testGrape(string $path, int $bands, int $shape, float $left[], float
                 $temp=floor($temp*1000+0.5);
                 if($temp!=$radius){
                     print ("ERROR: Radius of polySphere"+$i+" should keep unchanged.\n");
+                    $test=0;
+                    break;
+                }
+            }
+        }else{
+            $cmd="getAttr - time 0 polyCube"+$i+".width";
+            $width=`eval $cmd`;
+            $width=floor($width*1000+0.5);
+            $cmd2="getAttr - time 0 polyCube"+$i+".height";
+            $height=`eval $cmd`;
+            $height=floor($height*1000+0.5);
+            $cmd3="getAttr - time 0 polyCube"+$i+".depth";
+            $depth=`eval $cmd`;
+            $depth=floor($depth*1000+0.5);
+            for ($j=1;$j<=20;$j++){
+                $cmd="getAttr - time "+$j+" polyCube"+$i+".width";
+                $temp=`eval $cmd`;
+                $temp=floor($temp*1000+0.5);
+                if($temp!=$width){
+                    print ("ERROR: Width of polyCube"+$i+" should keep unchanged.\n");
+                    $test=0;
+                    break;
+                }
+                $cmd="getAttr - time "+$j+" polyCube"+$i+".height";
+                $temp=`eval $cmd`;
+                $temp=floor($temp*1000+0.5);
+                if($temp!=$height){
+                    print ("ERROR: Height of polyCube"+$i+" should keep unchanged.\n");
+                    $test=0;
+                    break;
+                }
+                $cmd="getAttr - time "+$j+" polyCube"+$i+".depth";
+                $temp=`eval $cmd`;
+                $temp=floor($depth*1000+0.5);
+                if($temp!=$radius){
+                    print ("ERROR: Depth of polyCube"+$i+" should keep unchanged.\n");
                     $test=0;
                     break;
                 }
