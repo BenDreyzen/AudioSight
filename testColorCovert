@@ -1,0 +1,163 @@
+//-------Code used for RGB/HSV conversion from procedure grapes----------
+proc float[] RGBtoHSV(float $rgb[]) {
+	float $hsv[];
+	float $min = min(min($rgb[0], $rgb[1]), $rgb[2]);
+	float $max = max(max($rgb[0], $rgb[1]), $rgb[2]);
+	$hsv[2] = $max;								// v
+	float $delta = $max - $min;
+	if ($max != 0) $hsv[1] = $delta/$max;					// s
+	else {
+		// r = g = b = 0						// s = 0, v is undefined
+		$hsv[1] = 0;
+		$hsv[0] = -1;
+		return $hsv;
+	}
+	if ($delta == 0) $hsv[0] = 0;
+	else if ($rgb[0] == $max) $hsv[0] = ($rgb[1] - $rgb[2]) / $delta;	// between yellow & magenta
+	else if ($rgb[1] == $max) $hsv[0] = 2 + ($rgb[2] - $rgb[0]) / $delta;	// between cyan & yellow
+	else $hsv[0] = 4 + ($rgb[0] - $rgb[1]) / $delta;			// between magenta & cyan
+	$hsv[0] = $hsv[0]*60;							// degrees
+	if ($hsv[0] < 0) $hsv[0] = $hsv[0] + 360;
+	return $hsv;
+}
+proc float[] HSVtoRGB(float $hsv[]) {
+	float $rgb[];
+	int $i;
+	float $f, $p, $q, $t;
+	if ($hsv[1] == 0) {
+		// achromatic (grey)
+		$rgb[0] = $hsv[2];
+		$rgb[1] = $hsv[2];
+		$rgb[2] = $hsv[2];
+		return $rgb;
+	}
+	$hsv[0] = $hsv[0] / 60;			// sector 0 to 5
+	$i = floor($hsv[0]);
+	$f = $hsv[0] - $i;			// factorial part of h
+	$p = $hsv[2] * (1 - $hsv[1]);
+	$q = $hsv[2] * (1 - $hsv[1] * $f);
+	$t = $hsv[2] * (1 - $hsv[1] * (1 - $f));
+	switch($i) {
+		case 0: $rgb = {$hsv[2], $t, $p}; break;
+		case 1: $rgb = {$q, $hsv[2], $p}; break;
+		case 2: $rgb = {$p, $hsv[2], $t}; break;
+		case 3: $rgb = {$p, $q, $hsv[2]}; break;
+		case 4: $rgb = {$t, $p, $hsv[2]}; break;
+		default: $rgb = {$hsv[2], $p, $q}; break;
+	}
+	return $rgb;
+}
+//-------------test code starts from here----------
+proc testColorCovert()
+{
+	print ("Test case 1: RGB to HSV: ");
+	float $rgb[] = {1.0,1.0,1.0};
+	float $expected[] ={0,0,1};
+	float $r[]=RGBtoHSV($rgb);
+	int $size = size($r);
+	int $test=1;
+	for($i=0;$i<$size;$i++) {
+		$value = $r[ $i ];
+		if($value!=$expected[ $i ]){
+			print ("Error in RGB to HSV conversion\n");
+			$test=0;
+		}
+	}
+
+	if($test==1){
+		print ("Passed\n");
+	}
+	$test=1;
+	print ("Test case 2: RGB to HSV: ");
+	float $rgb[] = {0.0,0.0,0.0};
+	float $expected[] ={0,0,0};
+	float $r[]=RGBtoHSV($rgb);
+	$size = size($r);
+	for($i=0;$i<$size;$i++) {
+		$value = $r[ $i ];
+		if($value!=$expected[ $i ]){
+			print ("Error in RGB to HSV conversion\n");
+			$test=0;
+		}
+	}
+	if($test==1){
+		print ("Passed\n");
+	}
+	$test=1;
+	print ("Test case 3: RGB to HSV: ");
+	float $rgb[] = {0.5,0.5,0.5};
+	float $expected[] ={0.0,0.0,0.5};
+	float $r[]=RGBtoHSV($rgb);
+	$size = size($r);
+	for($i=0;$i<$size;$i++) {
+		$value = $r[ $i ];
+		if($value!=$expected[ $i ]){
+			print ("Error in RGB to HSV conversion\n");
+			$test=0;
+		}
+	}
+
+	if($test==1){
+		print ("Passed\n");
+	}
+	$test=1;
+	print ("Test case 4: HSV to RGB: ");
+	float $hsv[] = {300.0,1.0,0.5};
+	float $expected[] ={0.5,0.0,0.5};
+	float $r[]=HSVtoRGB($hsv);
+	$size = size($r);
+	for($i=0;$i<$size;$i++) {
+		$value = $r[ $i ];
+		if($value!=$expected[ $i ]){
+			print ("Error in RGB to HSV conversion\n");
+			$test=0;
+		}
+	}
+
+	if($test==1){
+		print ("Passed\n");
+	}
+	$test=1;
+	print ("Test case 5: HSV to RGB: ");
+	float $hsv[] = {60.0,1.0,0.5};
+	float $expected[] ={0.5,0.5,0.0};
+	float $r[]=HSVtoRGB($hsv);
+	$size = size($r);
+	for($i=0;$i<$size;$i++) {
+		$value = $r[ $i ];
+		if($value!=$expected[ $i ]){
+			print ("Error in RGB to HSV conversion\n");
+			$test=0;
+		}
+	}
+	
+	if($test==1){
+		print ("Passed\n");
+	}
+	
+	$test=1;
+	print ("Test case 6: HSV to RGB: ");
+	float $hsv[] = {0.0,0.0,1.0};
+	float $expected[] ={1.0,1.0,1.0};
+	float $r[]=HSVtoRGB($hsv);
+	$size = size($r);
+	for($i=0;$i<$size;$i++) {
+		$value = $r[ $i ];
+		if($value!=$expected[ $i ]){
+			print ("Error in RGB to HSV conversion\n");
+			$test=0;
+		}
+	}
+	
+	if($test==1){
+		print ("Passed\n");
+	}
+	
+
+	if($test==1){
+		print ("All tests passed\n");
+	}
+}
+
+
+
