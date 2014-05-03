@@ -1,0 +1,119 @@
+//UItest written by Ziyou "Will" Wu
+//to test sphere or cube scene: global proc UItestforGrapes(string $path, int $bass, int $mid, int $treble, int $color, int $size)
+
+//to test speaker scene: UItestforSpeaker(string $filename, int $bass, int $mid, int $treble, float $left[], float $right[], int $interpolation, int $color)
+
+global proc UItestforSpeaker(string $filename, int $bass, int $mid, int $treble, float $left[], float $right[], int $interpolation, int $color)
+{
+    int $test=1;
+    if(!`filetest -r $path`)
+    {
+        print "Failed filepath\n";
+        $test=0;
+    }
+    int $band=$bass+$mid+$treble;
+    if($band!=32)
+    {
+        print "Failed frequency partition";
+        $test=0;
+    }
+
+    $test=testRGBColorSelection($left);
+    $test=testRGBColorSelection($right);
+
+    if($interpolation!=1 && $interpolation!=2){
+        print "Failed interpolation selection.\n";
+        $test=0;
+    }
+
+    if($color!=1 &&  $color!=2){
+        print "Failed color driven method selection.\n";
+        $test=0;
+    }
+    
+    if($test==1)
+    {
+        s "All tests passed\n";
+    }
+}
+
+global proc UItestforGrapes(string $path, int $bands, int $shape, float $left[], float $right[], int $interpolation, int $color)
+{
+    int $test=1;
+    if(!`filetest -r $path`)
+    {
+        print "Failed filepath\n";
+        $test=0;
+    }
+    if($bands>32)
+    {
+        print "Failed frequency partition: the number of bands cannot exceed 32.\n ";
+        $test=0;
+    }
+    if($bands<=0)
+    {
+        print "Failed frequency partition: the number of bands cannot be lower than zero.\n";
+        $test=0;
+    }
+    if($shape!=1 && $shape!=2){
+        print "Failed shape selection.\n";
+        $test=0;
+    }
+    
+    $test=testRGBColorSelection($left);
+    $test=testRGBColorSelection($right);
+
+    if($interpolation!=1 && $interpolation!=2){
+        print "Failed interpolation selection.\n";
+        $test=0;
+    }
+
+    if($color!=1 &&  $color!=2){
+        print "Failed color driven method selection.\n";
+        $test=0;
+    }
+    
+    if($test==1)
+    {
+        print "All tests passed\n";
+    }
+}
+
+proc int testRGBColorSelection(float $array[]){
+    int $test=1;
+    int $size = size($array);
+    if ($size!=3){
+        print " Illegal RGB array.\n";
+        $test=0;
+    }
+    for($i=0;$i<$size;++$i) {
+        if ($array[$i]>1 || $array[$i]<0){
+            print " Illegal value of color component.\n";
+            $test=0;
+        }
+    }
+    return $test;
+}
+
+proc int testHSVColorSelection(float $array[]){
+    int $test=1;
+    int $size = size($array);
+    if ($size!=3){
+        print " Illegal HSV array.\n";
+        $test=0;
+    }
+    if ($array[0]>300 || $array[0]<0){
+        print " Illegal value of color component.\n";
+        $test=0;
+    }
+    if ($array[1]>1 || $array[0]<0){
+        print " Illegal value of color component.\n";
+        $test=0;
+    }
+    if ($array[0]>1 || $array[0]<0){
+        print " Illegal value of color component.\n";
+        $test=0;
+    }
+    return $test;
+}
+

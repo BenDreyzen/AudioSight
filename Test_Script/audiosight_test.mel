@@ -23,13 +23,15 @@ proc gatherer() {
 	if ($import) doSoundImportArgList ("1", {$filename,"0.0"});
 	if($shape==1 || $shape==2){
 		int $bands = `intSliderGrp -query -value "bands_slider"`;
-		grapesScene($filename, $bands, $shape, $left, $right, $interpolation, $color);
+		UItestforGrapes($filename,$bands,$shape,$left,$right,$interpolation,$color);
+		testGrape($filename,$bands,$shape,$left,$right,$interpolation,$color);
 	}
 	else{
 		int $bass = `intSliderGrp -query -value "bass_slider"`;
 		int $mid = `intSliderGrp -query -value "mid_slider"`;
 		int $treble = `intSliderGrp -query -value "treble_slider"`;
-		speakerScene($filename, $bass, $mid, $treble, $left, $right, $interpolation, $color);
+		UItestforSpeaker($filename,$bass,$mid,$treble,$left,$right,$interpolation,$color);
+		testSpeaker($filename,$bass,$mid,$treble,$left,$right,$interpolation,$color);
 	}
 }
 proc sceneRenderer() {
@@ -402,6 +404,201 @@ proc speakerScene(string $filename, int $bass, int $mid, int $treble, float $lef
 		expression -string ("emitter3.particleColorG = expression3.output[0]*"+$interprgb3[2]);
 	}
 }
+
+global proc testSpeaker(string $filename, int $bass, int $mid, int $treble, float $left[], float $right[], int $interpolation, int $color)
+{
+    speakerScene($filename,$bass,$mid,$treble,$left,$right,$interpolation,$color);
+    string $cmd1;
+    string $cmd2;
+    string $cmd3;
+    float $temp;
+    int $test=1;
+    float $r1=`getAttr - time 0 softMod1Handle.translateY`;
+    $r1=floor($r1*1000+0.5);
+    float $r2=`getAttr - time 0 softMod2Handle.translateY`;
+    $r2=floor($r2*1000+0.5);
+    float $r3=`getAttr - time 0 softMod3Handle.translateY`;
+    $r3=floor($r3*1000+0.5);
+    for($i=1; $i<15; $i++){
+        $cmd1="getAttr - time "+$i+" softMod1Handle.translateY";
+        $cmd2="getAttr - time "+$i+" softMod2Handle.translateY";
+        $cmd3="getAttr - time "+$i+" softMod3Handle.translateY";
+        $temp=`eval $cmd1`;
+        $temp=floor($temp*1000+0.5);
+        if($temp!=$r1){
+            print ("Radius of polySphere1 should keep unchanged.\n");
+            $test=0;
+            break;
+        }
+        $temp=`eval $cmd2`;
+        $temp=floor($temp*1000+0.5);
+        if($temp!=$r2){
+            print ("Radius of polySphere2 should keep unchanged.\n");
+            print ($i + "\n");
+            $test=0;
+            break;
+        }
+        $temp=`eval $cmd3`;
+        $temp=floor($temp*1000+0.5);
+        if($temp!=$r3){
+            print ("Radius of polySphere3 should keep unchanged.\n");
+            $test=0;
+            break;
+        }
+    }
+    if($test==1){
+        print ("All scene tests passed! "+"\n");
+    }
+}
+
+global proc testGrape(string $path, int $bands, int $shape, float $left[], float $right[], int $interpolation, int $color)
+{
+    grapesScene($path,$bands,$shape,$left,$right,$interpolation,$color);
+    string $cmd;
+    string $cmd2;
+    string $cmd3;
+    float $radius;
+    float $temp;
+    float $width;
+    float $height;
+    float $depth;
+    int $test=1;
+    for($i=1; $i<=$bands;$i++ ){
+        if($shape==1){
+            $cmd="getAttr - time 0 polySphere"+$i+".radius";
+            $radius=`eval $cmd`;
+            $radius=floor($radius*1000+0.5);
+            for ($j=1;$j<=20;$j++){
+                $cmd="getAttr - time "+$j+" polySphere"+$i+".radius";
+                $temp=`eval $cmd`;
+                $temp=floor($temp*1000+0.5);
+                if($temp!=$radius){
+                    print ("ERROR: Radius of polySphere"+$i+" should keep unchanged.\n");
+                    $test=0;
+                    break;
+                }
+            }
+        }
+        if($shape==2){
+            $cmd="getAttr - time 0 polyCube"+$i+".width";
+            $width=`eval $cmd`;
+            $width=floor($width*1000+0.5);
+            $cmd2="getAttr - time 0 polyCube"+$i+".height";
+            $height=`eval $cmd`;
+            $height=floor($height*1000+0.5);
+            $cmd3="getAttr - time 0 polyCube"+$i+".depth";
+            $depth=`eval $cmd`;
+            $depth=floor($depth*1000+0.5);
+            for ($j=1;$j<=20;$j++){
+                $cmd="getAttr - time "+$j+" polyCube"+$i+".width";
+                $temp=`eval $cmd`;
+                $temp=floor($temp*1000+0.5);
+                if($temp!=$width){
+                    print ("ERROR: Width of polyCube"+$i+" should keep unchanged.\n");
+                    $test=0;
+                    break;
+                }
+                $cmd="getAttr - time "+$j+" polyCube"+$i+".height";
+                $temp=`eval $cmd`;
+                $temp=floor($temp*1000+0.5);
+                if($temp!=$height){
+                    print ("ERROR: Height of polyCube"+$i+" should keep unchanged.\n");
+                    $test=0;
+                    break;
+                }
+                $cmd="getAttr - time "+$j+" polyCube"+$i+".depth";
+                $temp=`eval $cmd`;
+                $temp=floor($depth*1000+0.5);
+                if($temp!=$radius){
+                    print ("ERROR: Depth of polyCube"+$i+" should keep unchanged.\n");
+                    $test=0;
+                    break;
+                }
+            }
+        }
+    }
+    if($test==1){
+        print ("All scene tests passed! "+"\n");
+    }
+}
+
+global proc UItestforSpeaker(string $filename, int $bass, int $mid, int $treble, float $left[], float $right[], int $interpolation, int $color)
+{
+    int $test=1;
+    if(!`filetest -r $filename`)
+    {
+        print "Failed filepath\n";
+        $test=0;
+    }
+    int $band=$bass+$mid+$treble;
+    if($band!=32)
+    {
+        print "Failed frequency partition";
+        $test=0;
+    }
+
+
+    $test=testRGBColorSelection($left);
+    $test=testRGBColorSelection($right);
+
+    if($interpolation!=1 && $interpolation!=2){
+        print "Failed interpolation selection.\n";
+        $test=0;
+    }
+
+    if($color!=1 &&  $color!=2){
+        print "Failed color driven method selection.\n";
+        $test=0;
+    }
+    
+    if($test==1)
+    {
+        print "All UI tests passed\n";
+    }
+}
+
+global proc UItestforGrapes(string $path, int $bands, int $shape, float $left[], float $right[], int $interpolation, int $color)
+{
+    int $test=1;
+    if(!`filetest -r $path`)
+    {
+        print "Failed filepath\n";
+        $test=0;
+    }
+    if($bands>32)
+    {
+        print "Failed frequency partition: the number of bands cannot exceed 32.\n ";
+        $test=0;
+    }
+    if($bands<=0)
+    {
+        print "Failed frequency partition: the number of bands cannot be lower than zero.\n";
+        $test=0;
+    }
+    if($shape!=1 && $shape!=2){
+        print "Failed shape selection.\n";
+        $test=0;
+    }
+    
+    $test=testRGBColorSelection($left);
+    $test=testRGBColorSelection($right);
+
+    if($interpolation!=1 && $interpolation!=2){
+        print "Failed interpolation selection.\n";
+        $test=0;
+    }
+
+    if($color!=1 &&  $color!=2){
+        print "Failed color driven method selection.\n";
+        $test=0;
+    }
+    
+    if($test==1)
+    {
+        print "All UI tests passed\n";
+    }
+}
+
 
 window -width 490 -title "Specify Your Visualization" "window";
 scrollLayout;
