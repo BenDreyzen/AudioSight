@@ -1,3 +1,5 @@
+//written by Ziyou "Will" Wu
+
 //-------Code used for RGB/HSV conversion from procedure grapes----------
 proc float[] RGBtoHSV(float $rgb[]) {
 	float $hsv[];
